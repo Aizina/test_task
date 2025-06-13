@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Загрузка файла</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 50px;
+  }
+  input, button {
+    display: block;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>Загрузка файла</h1>
+
+  <input id="fileInput" type="file" />
+  <button id="uploadBtn">Загрузить</button>
+
+  <p id="status">Начинаем...</p>
+  <p>Ссылка на файл: <a id="fileLink" href="">—</a></p>
+
+  <script>
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) return;
+
+      document.getElementById("status").innerHTML = "Загрузка...";
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/uploads", { method: "POST", body: formData });
+        if (!res.ok) {
+          document.getElementById("status").innerHTML = "Ошибка";
+          return;
+        }
+        const data = await res.json();
+        document.getElementById("status").innerHTML = "Файл загрузился";
+        document.getElementById("fileLink").setAttribute("href", data.downloadUrl);
+        document.getElementById("fileLink").innerHTML = data.downloadUrl;
+      } catch (err) {
+        console.error(err);
+        document.getElementById("status").innerHTML = "Ошибка";
+      }
+    });
+  </script>
+</body>
+</html>
